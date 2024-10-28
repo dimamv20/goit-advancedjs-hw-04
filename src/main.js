@@ -14,6 +14,8 @@ loadingIndicator.classList.add('loading-indicator');
 
 let currentPage = 1;
 let currentQuery = '';
+let totalHits = 0;
+let lightbox = new SimpleLightbox('.list-photos a'); 
 
 searchForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -39,22 +41,43 @@ async function performSearch(query) {
     document.body.appendChild(loadingIndicator);
 
     try {
-        const images = await fetchImages(query, currentPage);
+        const response = await fetchImages(query, currentPage);
+        const images = response.hits;
+        totalHits = response.totalHits;
+
         if (images.length === 0 && currentPage === 1) {
             showNoResultsMessage();
             return;
         }
 
         renderImages(images);
+        lightbox.refresh(); 
 
-        
-        if (images.length > 0) {
+        const totalLoadedImages = document.querySelectorAll('.list-photos img').length;
+        if (totalLoadedImages >= totalHits || totalLoadedImages >= 45) { 
+            loadMoreButton.style.display = 'none';
+            showEndOfResultsMessage();
+        } else {
             loadMoreButton.style.display = 'block';
         }
+
+
+        const cardHeight = document.querySelector('.list-photos li').getBoundingClientRect().height;
+        window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth'
+        });
 
     } catch (error) {
         console.error(error);
     } finally {
         loadingIndicator.remove();
     }
+}
+
+function showEndOfResultsMessage() {
+    const message = document.createElement('p');
+    message.textContent = "We're sorry, but you've reached the end of search results.";
+    message.classList.add('end-of-results-message');
+    document.body.appendChild(message);
 }
