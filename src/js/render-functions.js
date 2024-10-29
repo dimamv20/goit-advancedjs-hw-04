@@ -1,5 +1,4 @@
 import iziToast from 'izitoast';
-import SimpleLightbox from 'simplelightbox';
 
 export const renderImages = (images) => {
     const listPhotos = document.querySelector('.list-photos');
@@ -19,7 +18,4 @@ export const renderImages = (images) => {
     `).join('');
 
     listPhotos.insertAdjacentHTML('beforeend', imageElements);
-
-    const lightbox = new SimpleLightbox('.list-photos a');
-    lightbox.refresh();
 };
